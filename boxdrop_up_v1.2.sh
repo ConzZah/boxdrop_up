@@ -1,16 +1,15 @@
 #!/usr/bin/env bash
 clear
   #========================================
-  # Project: BOXDROP_UP_v1.1
+  # Project: BOXDROP_UP_v1.2
   # Author:  ConzZah / ©️ 2024
-  # Last Modification: 02.06.2024 / 23:48
+  # Last Modification: 06.06.2024 / 00:44
   #========================================
-# boxdrop_v1.1
-function boxdrop_v1.1 {
-echo "======================="
-echo " BOXDROP_UPLOADER_v1.1"
-echo "======================="
-echo ""; echo "PASTE PATH TO FILE"; echo ""; read fpath
+# boxdrop_v1.2
+function boxdrop_v1.2 {
+echo $b1; echo " BOXDROP_UPLOADER_v1.2"; echo $b1
+echo ""; echo "PASTE PATH TO FILE"; echo ""; read fpath; cd "$fpath"; echo ""; echo "LISTING DIRECTORY.."; echo ""; 
+echo $b1$b1; ls | cat; echo $b1$b1
 echo ""; echo "PASTE FILENAME"; echo ""; read fname; echo ""
 echo ""
 # fetch new access_token, run sed & write result to raw_access_token.txt
@@ -24,7 +23,6 @@ access_token=$(<raw_access_token.txt)
 rm raw_access_token.txt 
 # ^ ^ ^ removes current access_token so there are no conflicts 
 echo ""; echo "[ ~~~ UPLOADING "$fname" PLEASE WAIT ~~~ ]"; echo ""
-cd "$fpath"
 curl -X POST https://content.dropboxapi.com/2/files/upload \
     --header "Authorization: Bearer $access_token" \
     --header "Dropbox-API-Arg: {\"path\": \"/"$fname"\", \"mode\": \"add\", \"strict_conflict\": false}" \
@@ -37,11 +35,13 @@ echo ""; echo ""; echo "[ ~~~~ UPLOAD DONE ~~~~ ]"; echo ""; echo "[ ~~~ PRESS A
 function final_checks {
 # checking if "refresh_token.txt" exist, if not, run initial_setup
 if [ ! -f ~/boxdrop_config/refresh_token.txt ]; then echo "NO CONFIG FILES FOUND, STARTING INITIAL SETUP."; echo ""; mkdir -p ~/boxdrop_config; cd ~/boxdrop_config; initial_setup; fi
-# loading in config files
+# loading config files
 cd ~/boxdrop_config
 app_key=$(<app_key.txt)
 app_secret=$(<app_secret.txt)
 refresh_token=$(<refresh_token.txt)
+# cosmetics
+b1="======================="
 }
 # initial_setup
 function initial_setup {
@@ -66,4 +66,4 @@ rm _raw_refresh_token.txt; rm __raw_refresh_token.txt
 echo ""; echo "SETUP DONE!"; echo "PRESS ANY KEY TO LAUNCH BOXDROP"; read -n 1 -s; clear; final_checks
 }
 ### LAUNCH ###
-final_checks; boxdrop_v1.1
+final_checks; boxdrop_v1.2
