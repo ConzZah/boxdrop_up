@@ -1,17 +1,37 @@
 #!/usr/bin/env bash
 clear
   #========================================
-  # Project: BOXDROP_UP_v1.2
+  # Project: BOXDROP_UP_v1.3
   # Author:  ConzZah / ©️ 2024
-  # Last Modification: 06.06.2024 / 00:44
+  # Last Modification: 07.06.2024 / 15:17
   #========================================
-# boxdrop_v1.2
-function boxdrop_v1.2 {
-echo $b1; echo " BOXDROP_UPLOADER_v1.2"; echo $b1
-echo ""; echo "PASTE PATH TO FILE"; echo ""; read fpath; cd "$fpath"; echo ""; echo "LISTING DIRECTORY.."; echo ""; 
-echo $b1$b1; ls | cat; echo $b1$b1
-echo ""; echo "PASTE FILENAME"; echo ""; read fname; echo ""
-echo ""
+
+# logo
+function logo {
+echo $b1; echo " BOXDROP_UPLOADER_v1.3"; echo $b1
+}
+# main
+function main {
+clear; logo
+parse_fpath
+}
+# parse_fpath
+function parse_fpath {
+error_msg="ERROR: DIRECTORY IS INVALID, TRY AGAIN."
+echo ""; echo "ENTER PATH TO FILE"; echo ""; read fpath;
+if [ ! -d "$fpath" ]; then echo "$error_msg"; read -n 1 -s; clear; logo; parse_fpath; fi
+cd "$fpath"; echo ""; echo "LISTING DIRECTORY.."; echo ""; echo $b1$b1; ls | cat; echo $b1$b1
+parse_fname
+}
+# parse_fname
+function parse_fname {
+error_msg="FILENAME IS INVALID, TRY AGAIN."
+echo ""; echo "ENTER FILENAME"; echo ""; read fname;
+if [ ! -f "$fname" ]; then echo "$error_msg"; read -n 1 -s; clear; logo; echo "LISTING DIRECTORY.."; echo ""; echo $b1$b1; ls|cat; echo $b1$b1; parse_fname; fi
+fetch_token
+}
+# fetch_token
+function fetch_token {
 # fetch new access_token, run sed & write result to raw_access_token.txt
 echo "[ ~~~ GETTING ACCESS_TOKEN.. ~~~ ]"
 curl -s https://api.dropbox.com/oauth2/token -d refresh_token="$refresh_token" -d grant_type=refresh_token -d client_id="$app_key" -d client_secret="$app_secret" > raw_access_token.txt 
@@ -22,6 +42,10 @@ access_token=$(<raw_access_token.txt)
 # ^ ^ ^ loads access_token
 rm raw_access_token.txt 
 # ^ ^ ^ removes current access_token so there are no conflicts 
+upload_file
+}
+# upload_file
+function upload_file {
 echo ""; echo "[ ~~~ UPLOADING "$fname" PLEASE WAIT ~~~ ]"; echo ""
 curl -X POST https://content.dropboxapi.com/2/files/upload \
     --header "Authorization: Bearer $access_token" \
@@ -29,7 +53,9 @@ curl -X POST https://content.dropboxapi.com/2/files/upload \
     --header "Content-Type: application/octet-stream" \
     --data-binary @"$fname"
 # actual upload ^ ^ ^
-echo ""; echo ""; echo "[ ~~~~ UPLOAD DONE ~~~~ ]"; echo ""; echo "[ ~~~ PRESS ANY KEY TO EXIT ~~~ ]"; read -n 1 -s; exit
+echo ""; echo ""; echo "[ ~~~~ UPLOAD DONE ~~~~ ]"; echo ""
+# give option to upload more files 
+echo "[ ~~~ PRESS ANY KEY TO EXIT ~~~ ]"; read -n 1 -s; exit
 }
 # final_checks
 function final_checks {
@@ -66,4 +92,5 @@ rm _raw_refresh_token.txt; rm __raw_refresh_token.txt
 echo ""; echo "SETUP DONE!"; echo "PRESS ANY KEY TO LAUNCH BOXDROP"; read -n 1 -s; clear; final_checks
 }
 ### LAUNCH ###
-final_checks; boxdrop_v1.2
+final_checks
+main
