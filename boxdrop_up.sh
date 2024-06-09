@@ -1,33 +1,31 @@
 #!/usr/bin/env bash
 clear
   #========================================
-  # Project: BOXDROP_UP_v1.3
+  # Project: BOXDROP_UP.sh [v1.3.1]
   # Author:  ConzZah / ©️ 2024
-  # Last Modification: 07.06.2024 / 15:17
+  # Last Modification: 09.06.2024 / 15:37
   #========================================
-
 # logo
 function logo {
-echo $b1; echo " BOXDROP_UPLOADER_v1.3"; echo $b1
+echo $c1; echo " BOXDROP UP v1.3.1"; echo $c1
 }
 # main
 function main {
-clear; logo
-parse_fpath
+clear; logo; parse_fpath
 }
 # parse_fpath
 function parse_fpath {
 error_msg="ERROR: DIRECTORY IS INVALID, TRY AGAIN."
 echo ""; echo "ENTER PATH TO FILE"; echo ""; read fpath;
 if [ ! -d "$fpath" ]; then echo "$error_msg"; read -n 1 -s; clear; logo; parse_fpath; fi
-cd "$fpath"; echo ""; echo "LISTING DIRECTORY.."; echo ""; echo $b1$b1; ls | cat; echo $b1$b1
+cd "$fpath"; echo ""; echo "LISTING DIRECTORY.."; echo ""; echo $c1$c1; ls | cat; echo $c1$c1
 parse_fname
 }
 # parse_fname
 function parse_fname {
 error_msg="FILENAME IS INVALID, TRY AGAIN."
 echo ""; echo "ENTER FILENAME"; echo ""; read fname;
-if [ ! -f "$fname" ]; then echo "$error_msg"; read -n 1 -s; clear; logo; echo "LISTING DIRECTORY.."; echo ""; echo $b1$b1; ls|cat; echo $b1$b1; parse_fname; fi
+if [ ! -f "$fname" ]; then echo "$error_msg"; read -n 1 -s; clear; logo; echo "LISTING DIRECTORY.."; echo ""; echo $c1$c1; ls|cat; echo $c1$c1; parse_fname; fi
 fetch_token
 }
 # fetch_token
@@ -52,10 +50,22 @@ curl -X POST https://content.dropboxapi.com/2/files/upload \
     --header "Dropbox-API-Arg: {\"path\": \"/"$fname"\", \"mode\": \"add\", \"strict_conflict\": false}" \
     --header "Content-Type: application/octet-stream" \
     --data-binary @"$fname"
-# actual upload ^ ^ ^
 echo ""; echo ""; echo "[ ~~~~ UPLOAD DONE ~~~~ ]"; echo ""
-# give option to upload more files 
-echo "[ ~~~ PRESS ANY KEY TO EXIT ~~~ ]"; read -n 1 -s; exit
+repeat
+}
+# repeat
+function repeat {
+echo ""; echo "UPLOAD ANOTHER FILE?"; echo ""
+echo "Y) YES"
+echo "Q) NO (EXIT)"
+read repeat
+case $repeat in
+	y) clear; main;;
+	Y) clear; main;;
+	q) echo ""; echo "PRESS ANY KEY TO EXIT"; read -n 1 -s; exit;;
+	Q) echo ""; echo "PRESS ANY KEY TO EXIT"; read -n 1 -s; exit;;
+	*) clear; repeat
+esac
 }
 # final_checks
 function final_checks {
@@ -67,7 +77,7 @@ app_key=$(<app_key.txt)
 app_secret=$(<app_secret.txt)
 refresh_token=$(<refresh_token.txt)
 # cosmetics
-b1="======================="
+c1="===================="
 }
 # initial_setup
 function initial_setup {
