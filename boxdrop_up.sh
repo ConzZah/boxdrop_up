@@ -1,31 +1,35 @@
 #!/usr/bin/env bash
 clear
   #========================================
-  # Project: BOXDROP_UP.sh [v1.3.1]
+  # Project: BOXDROP_UP.sh [v1.3.2]
   # Author:  ConzZah / ©️ 2024
-  # Last Modification: 09.06.2024 / 15:37
+  # Last Modification: 10.06.2024 / 19:52
   #========================================
 # logo
 function logo {
-echo $c1; echo " BOXDROP UP v1.3.1"; echo $c1
+clear
+echo $c1; echo " BOXDROP UP v1.3.2"; echo $c1
 }
 # main
 function main {
-clear; logo; parse_fpath
+fpath=""
+wd=$(pwd)
+logo; parse_fpath
 }
 # parse_fpath
 function parse_fpath {
 error_msg="ERROR: DIRECTORY IS INVALID, TRY AGAIN."
-echo ""; echo "ENTER PATH TO FILE"; echo ""; read fpath;
-if [ ! -d "$fpath" ]; then echo "$error_msg"; read -n 1 -s; clear; logo; parse_fpath; fi
-cd "$fpath"; echo ""; echo "LISTING DIRECTORY.."; echo ""; echo $c1$c1; ls | cat; echo $c1$c1
+list_wd; echo "[ TO USE CURRENT DIR, HIT ENTER ]"; echo ""; echo "INPUT PATH:"; echo ""; read fpath;
+if [[ "$fpath" == "" ]]; then fpath=$wd; fi
+if [ ! -d "$fpath" ]; then echo "$error_msg"; read -n 1 -s; logo; parse_fpath; fi
+cd "$fpath"; logo; list_fpath
 parse_fname
 }
 # parse_fname
 function parse_fname {
-error_msg="FILENAME IS INVALID, TRY AGAIN."
-echo ""; echo "ENTER FILENAME"; echo ""; read fname;
-if [ ! -f "$fname" ]; then echo "$error_msg"; read -n 1 -s; clear; logo; echo "LISTING DIRECTORY.."; echo ""; echo $c1$c1; ls|cat; echo $c1$c1; parse_fname; fi
+error_msg="ERROR: FILENAME IS INVALID, TRY AGAIN."
+echo ""; echo "INPUT FILENAME:"; echo ""; read fname;
+if [ ! -f "$fname" ]; then echo "$error_msg"; read -n 1 -s; logo; list_fpath; parse_fname; fi
 fetch_token
 }
 # fetch_token
@@ -51,33 +55,21 @@ curl -X POST https://content.dropboxapi.com/2/files/upload \
     --header "Content-Type: application/octet-stream" \
     --data-binary @"$fname"
 echo ""; echo ""; echo "[ ~~~~ UPLOAD DONE ~~~~ ]"; echo ""
-repeat
+ask2repeat_main
 }
-# repeat
-function repeat {
+# ask2repeat_main
+function ask2repeat_main {
 echo ""; echo "UPLOAD ANOTHER FILE?"; echo ""
 echo "Y) YES"
 echo "Q) NO (EXIT)"
-read repeat
-case $repeat in
+read ask2repeat_main
+case $ask2repeat_main in
 	y) clear; main;;
 	Y) clear; main;;
 	q) echo ""; echo "PRESS ANY KEY TO EXIT"; read -n 1 -s; exit;;
 	Q) echo ""; echo "PRESS ANY KEY TO EXIT"; read -n 1 -s; exit;;
-	*) clear; repeat
+	*) clear; ask2repeat_main
 esac
-}
-# final_checks
-function final_checks {
-# checking if "refresh_token.txt" exist, if not, run initial_setup
-if [ ! -f ~/boxdrop_config/refresh_token.txt ]; then echo "NO CONFIG FILES FOUND, STARTING INITIAL SETUP."; echo ""; mkdir -p ~/boxdrop_config; cd ~/boxdrop_config; initial_setup; fi
-# loading config files
-cd ~/boxdrop_config
-app_key=$(<app_key.txt)
-app_secret=$(<app_secret.txt)
-refresh_token=$(<refresh_token.txt)
-# cosmetics
-c1="===================="
 }
 # initial_setup
 function initial_setup {
@@ -100,6 +92,27 @@ echo "$app_secret" > app_secret.txt
 mv raw_refresh_token.txt refresh_token.txt
 rm _raw_refresh_token.txt; rm __raw_refresh_token.txt
 echo ""; echo "SETUP DONE!"; echo "PRESS ANY KEY TO LAUNCH BOXDROP"; read -n 1 -s; clear; final_checks
+}
+# list_wd <-- lists current working dir, by default /home/$USER
+function list_wd {
+echo ""; echo "CURRENT DIRECTORY: $wd"; echo "$c1$c1"; ls|cat; echo "$c1$c1"; echo ""
+}
+# list_fpath
+function list_fpath {
+echo ""; echo "LISTING DIRECTORY: $fpath"; echo $c1$c1; ls|cat; echo $c1$c1
+}
+# final_checks
+function final_checks {
+# checks if "refresh_token.txt" exist, if not, runs initial_setup
+if [ ! -f ~/boxdrop_config/refresh_token.txt ]; then echo "NO CONFIG FILES FOUND, STARTING INITIAL SETUP."; echo ""; mkdir -p ~/boxdrop_config; cd ~/boxdrop_config; initial_setup; fi
+# loads config files
+cd ~/boxdrop_config
+app_key=$(<app_key.txt)
+app_secret=$(<app_secret.txt)
+refresh_token=$(<refresh_token.txt)
+# cosmetics
+c1="===================="
+cd /home/$USER # <-- standard start dir
 }
 ### LAUNCH ###
 final_checks
