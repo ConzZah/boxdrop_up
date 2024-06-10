@@ -18,18 +18,17 @@ logo; parse_fpath
 }
 # parse_fpath
 function parse_fpath {
-error_msg="ERROR: DIRECTORY IS INVALID, TRY AGAIN."
+error_msg="ERROR: DIRECTORY IS INVALID, PRESS ENTER TO TRY AGAIN."
 list_wd; echo "[ TO USE CURRENT DIR, HIT ENTER ]"; echo ""; echo "INPUT PATH:"; echo ""; read fpath;
 if [[ "$fpath" == "" ]]; then fpath=$wd; fi
-if [ ! -d "$fpath" ]; then echo "$error_msg"; read -n 1 -s; logo; parse_fpath; fi
-cd "$fpath"; logo; list_fpath
-parse_fname
+if [ ! -d "$fpath" ]; then echo "$error_msg"; read -n 1 -s; main; fi
+cd "$fpath"; parse_fname
 }
 # parse_fname
 function parse_fname {
-error_msg="ERROR: FILENAME IS INVALID, TRY AGAIN."
-echo ""; echo "INPUT FILENAME:"; echo ""; read fname;
-if [ ! -f "$fname" ]; then echo "$error_msg"; read -n 1 -s; logo; list_fpath; parse_fname; fi
+error_msg="ERROR: FILENAME IS INVALID, PRESS ENTER TO TRY AGAIN."
+logo; list_fpath; echo ""; echo "INPUT FILENAME:"; echo ""; read fname;
+if [ ! -f "$fname" ]; then echo "$error_msg"; read -n 1 -s; fname=""; parse_fname; fi
 fetch_token
 }
 # fetch_token
